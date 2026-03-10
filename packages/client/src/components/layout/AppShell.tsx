@@ -65,7 +65,8 @@ export function AppShell() {
       <aside
         data-tour="sidebar"
         className={cn(
-          "flex-shrink-0 overflow-hidden border-r border-[var(--sidebar-border)]/30 bg-[var(--background)]/80 backdrop-blur-xl transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+          "flex-shrink-0 overflow-hidden bg-[var(--background)]/80 backdrop-blur-xl transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+          sidebarOpen && "border-r border-[var(--sidebar-border)]/30",
           // Mobile: fixed overlay
           "max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-40 max-md:shadow-2xl",
           !sidebarOpen && "max-md:!w-0",
