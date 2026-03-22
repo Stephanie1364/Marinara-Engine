@@ -318,6 +318,9 @@ export function ChatArea() {
   const spriteExpressions: Record<string, string> = useMemo(() => chatMeta.spriteExpressions ?? {}, [chatMeta.spriteExpressions]);
   const groupChatMode: string | undefined = chatCharIds.length > 1 ? (chatMeta.groupChatMode ?? "merged") : undefined;
 
+  const streamingCharacterId = useChatStore((s) => s.streamingCharacterId);
+  const updateMeta = useUpdateChatMetadata();
+
   // Restore per-chat background from metadata when loading a chat.
   // Clearing is handled by setActiveChatId on actual chat switches, so we only
   // SET the background here — never clear it (avoids wiping agent-set backgrounds
@@ -329,8 +332,28 @@ export function ChatArea() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chat?.id]);
-  const streamingCharacterId = useChatStore((s) => s.streamingCharacterId);
-  const updateMeta = useUpdateChatMetadata();
+
+  // Persist background choice to chat metadata so it survives page refresh.
+  // Catches all sources: manual picker, background agent, scene commands, slash commands.
+  const bgPersistTimer = useRef<ReturnType<typeof setTimeout>>(null);
+  useEffect(() => {
+    if (!chat?.id) return;
+    const filename = chatBackground
+      ? decodeURIComponent(chatBackground.replace(/^\/api\/backgrounds\/file\//, ""))
+      : null;
+    // Skip if metadata already matches (avoids pointless writes on restore)
+    if (filename === (chatMeta.background ?? null)) return;
+    if (bgPersistTimer.current) clearTimeout(bgPersistTimer.current);
+    bgPersistTimer.current = setTimeout(() => {
+      updateMeta.mutate({ id: chat!.id, background: filename });
+    }, 500);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatBackground, chat?.id]);
+  useEffect(() => {
+    return () => {
+      if (bgPersistTimer.current) clearTimeout(bgPersistTimer.current);
+    };
+  }, []);
 
   const expressionSaveTimer = useRef<ReturnType<typeof setTimeout>>(null);
   const pendingExpressions = useRef<Record<string, string>>(spriteExpressions);
