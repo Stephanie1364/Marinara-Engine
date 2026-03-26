@@ -38,7 +38,7 @@ export function ChatInput({ mode = "conversation", characterNames = [] }: ChatIn
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const resizeRafRef = useRef<number>(0);
+  const resizeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeChatId = useChatStore((s) => s.activeChatId);
   const streamingChatId = useChatStore((s) => s.streamingChatId);
   const isStreamingGlobal = useChatStore((s) => s.isStreaming);
@@ -82,9 +82,9 @@ export function ChatInput({ mode = "conversation", characterNames = [] }: ChatIn
   useEffect(() => {
     const textarea = textareaRef.current;
     return () => {
-      // Cancel pending debounce/rAF
+      // Cancel pending debounce timers
       if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
-      cancelAnimationFrame(resizeRafRef.current);
+      if (resizeTimerRef.current) clearTimeout(resizeTimerRef.current);
       // Flush draft synchronously
       const chatId = useChatStore.getState().activeChatId;
       if (chatId && textarea) {
@@ -302,13 +302,13 @@ export function ChatInput({ mode = "conversation", characterNames = [] }: ChatIn
       }, 300);
     }
 
-    // Auto-resize textarea (schedule via rAF to avoid layout thrashing)
-    cancelAnimationFrame(resizeRafRef.current);
-    resizeRafRef.current = requestAnimationFrame(() => {
+    // Auto-resize textarea (debounced to reduce layout reflows during fast typing)
+    if (resizeTimerRef.current) clearTimeout(resizeTimerRef.current);
+    resizeTimerRef.current = setTimeout(() => {
       if (!el) return;
       el.style.height = "auto";
       el.style.height = Math.min(el.scrollHeight, 200) + "px";
-    });
+    }, 150);
 
     // Slash command autocomplete
     const trimmed = fixed.trim();
