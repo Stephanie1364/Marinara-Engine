@@ -56,9 +56,10 @@
 
 **Added:**
 
-- **Lorebook Depth Injection** — Lorebook entries with depth > 0 are now properly injected at the correct position in the prompt. Previously, depth entries were computed but never actually inserted into the message array (both conversation and preset assembly modes).
+- **Lorebook Depth Injection** — Lorebook entries with depth > 0 are now properly injected at the correct position in the prompt. Previously, depth entries were computed but never inserted into the message array (in both conversation and preset assembly modes).
 - **Full Persona Context for Agents** — Agents now receive personality, backstory, appearance, scenario, and RPG stats in their `<lore>` block, giving them richer context for more accurate responses.
 - **RPG Stats in Main Prompt** — Persona RPG attributes (HP, MP, stat bars) are now injected into the main generation prompt alongside the persona description.
+- **Image Generation Support** - Better support of image generation endpoints and a button to generate an image on demand.
 
 **Improved:**
 
@@ -76,27 +77,6 @@
 - **Preset Variable Bleed** — Preset choice variables (from `{{pick}}` macros) are now cleared when switching presets, preventing stale selections from one preset leaking into another.
 - **HTML Tag Stripping for Agents** — Agent prompts now strip HTML/XML styling tags from chat messages to prevent formatting artifacts from confusing the model.
 - **Chat Summary Removed from Agents** — Removed chat summary injection from agent calls to reduce noise and token usage.
-
----
-
-### v1.4.3
-
-**Added:**
-
-- **Message Translation** — Translate any message with a single click. Supports four providers: Google Translate (free), DeepL API (free & pro), DeepLX (self-hosted), and AI (via any configured LLM connection). Configure per-chat in Chat Settings → Translation section.
-- **Scene Lorebook Inheritance** — Scenes now automatically inherit lorebooks from the parent conversation, so world-building context carries over seamlessly into scenes.
-- **Scene Discard Confirmation** — The Discard button on active scenes now shows an inline "Discard scene? Yes / No" confirmation to prevent accidental discards.
-
-**Bug Fixes:**
-
-- **Depth Range Regex** — Regex scripts with `minDepth` / `maxDepth` now work correctly. Depth filtering was defined in types and UI, but never implemented in the client or server processing loops.
-- **HTML Spacing on Mobile** — Fixed extra vertical gaps appearing in HTML content on Android/mobile. Formatting newlines between HTML block tags was being converted to `<br>` elements with margins; they are now stripped.
-- **Peek Prompt Bugs** - The prompt is now properly displayed.
-
-**Security:**
-
-- **Translation URL Validation** — DeepLX URL input is validated as a proper HTTP/HTTPS URL to prevent SSRF.
-- **Google Translate Length Guard** — Added a 5,000-character limit for the Google Translate provider to prevent silent failures from URL length limits.
 
 ---
 
